@@ -63,9 +63,8 @@ class r0123456:
     """ Perform mutation, adding a random Gaussian perturbation. """
     def mutation(self, offspring, alpha):
         ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)
-        offspring[ii,:] = offspring[ii,:] + 10*np.random.randn(np.size(ii),2)
-        offspring[ii,0] = np.clip(offspring[ii,0], 0, self.intMax)
-        offspring[ii,1] = np.clip(offspring[ii,1], 0, self.intMax)
+        a, b = random.choices(range(offspring.size), k=2)
+        offspring[a], offspring[b] = offspring[b], offspring[a]
         return offspring
 
     """ Eliminate the unfit candidate solutions. """
