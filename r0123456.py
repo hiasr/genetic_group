@@ -13,17 +13,21 @@ class r0123456:
         self.k = 5                  # Tournament selection
         self.intMax = 500           # Boundary of the domain, not intended to be changed.
         self.numIters = 20          # Maximum number of iterations
+        self.rng = np.random.default_rng()
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
         # Read distance matrix from file.       
         file = open(filename)
         self.distanceMatrix = np.loadtxt(file, delimiter=",")
+        self.n = len(self.distanceMatrix)
         file.close()
 
         # Your code here.
-        yourConvergenceTestsHere = True
-        while( yourConvergenceTestsHere ):
+
+        population = self.init_population()
+        iters = 0
+        while iters < self.numIters:
             meanObjective = 0.0
             bestObjective = 0.0
             bestSolution = np.array([1,2,3,4,5])
@@ -38,12 +42,20 @@ class r0123456:
             timeLeft = self.reporter.report(meanObjective, bestObjective, bestSolution)
             if timeLeft < 0:
                 break
+            iters += 1
 
         # Your code here.
         return 0
 
+    """Initialize population as random permutations"""
+    def init_population(self):
+        population = np.zeros((self.lambdaa, self.lambdaa))
+        for i in range(self.lambdaa):
+            population[i] = self.rng.permutation(self.lambdaa)
+        return population
+
     """ Perform k-tournament selection to select pairs of parents. """
-    def selection(self, population, k):
+    def selection(self, population):
         selected = np.zeros((self.mu, 2))
         for ii in range( self.mu ):
             ri = random.choices(range(np.size(population,0)), k = self.k)
