@@ -1,7 +1,7 @@
 import Reporter
 import random
 import numpy as np
-
+#
 # Modify the class name to match your student number.
 class r0123456:
 
@@ -12,7 +12,7 @@ class r0123456:
         self.mu = self.lambdaa * 2  # Offspring size
         self.k = 5                  # Tournament selection
         self.intMax = 500           # Boundary of the domain, not intended to be changed.
-        self.numIters = 20          # Maximum number of iterations
+        self.numIters = 1         # Maximum number of iterations
         self.rng = np.random.default_rng()
 
     # The evolutionary algorithm's main loop
@@ -33,9 +33,13 @@ class r0123456:
 
             # Your code here.
             selected = self.selection(population, self.k)
+            print(selected)
             offspring = self.crossover(selected)
+            print(offspring)
             joinedPopulation = np.vstack((self.mutation(offspring, self.alpha), population))
+            print(joinedPopulation)
             population = self.elimination(joinedPopulation, self.lambdaa)
+            print(population)
 
             # Call the reporter with:
             #  - the mean objective function value of the population
@@ -77,24 +81,24 @@ class r0123456:
     def crossover(self, selected):
         i = self.rng.integers(self.n)
         j = self.rng.integers(i,self.n)
-        offspring = np.zeros(selected.shape, dtype=np.int64)
+        offspring = np.zeros((self.mu, self.n), dtype=np.int64)
         
-        for k in range(2):
+        for k in range(self.mu):
             offspring[k,i:j] = selected[k,i:j]
             ii = 0
             for jj in range(self.n):
-                if not selected[(k+1)%2,(j+jj)%self.n] in offspring[k,:]:
-                    offspring[k,(j+ii)%self.n] = selected[(k+1)%2,(j+jj)%self.n]
+                if not selected[(k+1)%self.mu,(j+jj)%self.n] in offspring[k,:]:
+                    offspring[k,(j+ii)%self.n] = selected[(k+1)%self.mu,(j+jj)%self.n]
                     ii += 1
         return offspring
 
     """ Perform mutation, adding a random Gaussian perturbation. """
     def mutation(self, offspring, alpha):
-        ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)[0]
-        for i in ii:
-            a = self.rng.integers(self.n)
-            b = self.rng.integers(a, self.n)
-            offspring[i, a:b+1] = np.flip(offspring[i, a:b+1])
+        #ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)[0]
+        #for i in ii:
+        #    a = self.rng.integers(self.n)
+        #    b = self.rng.integers(a, self.n)
+        #    offspring[i, a:b+1] = np.flip(offspring[i, a:b+1])
         return offspring
 
     """ Eliminate the unfit candidate solutions. """
@@ -108,7 +112,7 @@ class r0123456:
         m = np.size(permutation,0)
         fvals = np.zeros(m)
         for k in range(m):
-            print(permutation[k,:])
+#            print(permutation[k,:])
             for j in range(1, self.n):
                  fvals[k] += self.distanceMatrix[permutation[k,j-1]][permutation[k,j]]
         return fvals
