@@ -12,7 +12,7 @@ class r0123456:
         self.mu = self.lambdaa * 2  # Offspring size
         self.k = 5                  # Tournament selection
         self.intMax = 500           # Boundary of the domain, not intended to be changed.
-        self.numIters = 1         # Maximum number of iterations
+        self.numIters = 10          # Maximum number of iterations
         self.rng = np.random.default_rng()
 
     # The evolutionary algorithm's main loop
@@ -33,13 +33,13 @@ class r0123456:
 
             # Your code here.
             selected = self.selection(population, self.k)
-            print(selected)
+            #print(selected)
             offspring = self.crossover(selected)
-            print(offspring)
+            #print(offspring)
             joinedPopulation = np.vstack((self.mutation(offspring, self.alpha), population))
-            print(joinedPopulation)
+            #print(joinedPopulation)
             population = self.elimination(joinedPopulation, self.lambdaa)
-            print(population)
+            #print(population)
 
             # Call the reporter with:
             #  - the mean objective function value of the population
@@ -94,11 +94,11 @@ class r0123456:
 
     """ Perform mutation, adding a random Gaussian perturbation. """
     def mutation(self, offspring, alpha):
-        #ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)[0]
-        #for i in ii:
-        #    a = self.rng.integers(self.n)
-        #    b = self.rng.integers(a, self.n)
-        #    offspring[i, a:b+1] = np.flip(offspring[i, a:b+1])
+        ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)[0]
+        for i in ii:
+            a = self.rng.integers(self.n)
+            b = self.rng.integers(a, self.n)
+            offspring[i, a:b+1] = np.flip(offspring[i, a:b+1])
         return offspring
 
     """ Eliminate the unfit candidate solutions. """
