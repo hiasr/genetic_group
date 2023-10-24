@@ -13,7 +13,7 @@ class r0123456:
         self.k = 5                  # Tournament selection
         self.intMax = 500           # Boundary of the domain, not intended to be changed.
         self.numIters = 10          # Maximum number of iterations
-        self.rng = np.random.default_rng()
+        self.rng = np.random.default_rng(72261889802660786358204887137777642604)
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
