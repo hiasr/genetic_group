@@ -23,8 +23,7 @@ class r0123456:
         self.n = len(self.distanceMatrix)
         file.close()
 
-        # Your code here.
-
+        # population size: (50,100)
         population = self.init_population()
         iters = 0
         while iters < self.numIters:
@@ -33,6 +32,10 @@ class r0123456:
             bestSolution = np.array([1,2,3,4,5])
 
             # Your code here.
+            selected = self.selection(population, self.k)
+            offspring = self.crossover(selected)
+            joinedPopulation = np.vstack((self.mutation(offspring, self.alpha), population))
+            population = self.elimination(joinedPopulation, self.lambdaa)
 
             # Call the reporter with:
             #  - the mean objective function value of the population
@@ -43,33 +46,46 @@ class r0123456:
             if timeLeft < 0:
                 break
             iters += 1
-
         # Your code here.
-        return 0
+        return max(self.objf(population))
 
     """Initialize population as random permutations"""
     def init_population(self):
-        population = np.zeros((self.lambdaa, self.lambdaa))
+        population = np.zeros((self.lambdaa, self.n), dtype=np.int64)
         for i in range(self.lambdaa):
-            population[i] = self.rng.permutation(self.lambdaa)
+            population[i,:] = self.rng.permutation(self.n)
         return population
 
     """ Perform k-tournament selection to select pairs of parents. """
-    def selection(self, population):
-        selected = np.zeros((self.mu, 2))
+    def selection(self, population, k):
+        selected = np.zeros((self.mu, self.n))
         for ii in range( self.mu ):
-            ri = random.choices(range(np.size(population,0)), k = self.k)
+            ri = random.choices(range(np.size(population,0)), k = k)
             min = np.argmin( self.objf(population[ri, :]) )
             selected[ii,:] = population[ri[min],:]
         return selected
 
     """ Perform box crossover as in the slides. """
-    def crossover(self, selected):
+    def old_crossover(self, selected):
         weights = 3*np.random.rand(self.lambdaa,2) - 1
         offspring = np.zeros((self.lambdaa, 2))
         lc = lambda x, y, w: np.clip(x + w * (y-x), 0, self.intMax)
         for ii, _ in enumerate(offspring):
             offspring[ii,:] = lc(selected[2*ii, :], selected[2*ii+1, :], weights[ii, :])
+        return offspring
+
+    def crossover(self, selected):
+        i = self.rng.integers(self.n)
+        j = self.rng.integers(i,self.n)
+        offspring = np.zeros(selected.shape, dtype=np.int64)
+        
+        for k in range(2):
+            offspring[k,i:j] = selected[k,i:j]
+            ii = 0
+            for jj in range(self.n):
+                if not selected[(k+1)%2,(j+jj)%self.n] in offspring[k,:]:
+                    offspring[k,(j+ii)%self.n] = selected[(k+1)%2,(j+jj)%self.n]
+                    ii += 1
         return offspring
 
     """ Perform mutation, adding a random Gaussian perturbation. """
@@ -87,10 +103,15 @@ class r0123456:
         return survivors
     
     def objf(self, permutation):
-        result = 0
-        for i in range(1, len(permutation)):
-            result += self.distanceMatrix[permutation[i-1]][permutation[i]]
-        return result
+        m = np.size(permutation,0)
+        fvals = np.zeros(m)
+        for k in range(m):
+            print(permutation[k,:])
+            for j in range(1, self.n):
+                 fvals[k] += self.distanceMatrix[permutation[k,j-1]][permutation[k,j]]
+        return fvals
+
+
 
 tsp = r0123456()
 print(tsp.optimize("datasets/tour50.csv"))
