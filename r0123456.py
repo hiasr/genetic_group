@@ -27,9 +27,11 @@ class r0123456:
         population = self.init_population()
         iters = 0
         while iters < self.numIters:
-            meanObjective = 0.0
-            bestObjective = 0.0
-            bestSolution = np.array([1,2,3,4,5])
+            fvals = self.objf(population)
+            meanObjective = fvals.mean()
+            bestObjectiveIndex = fvals.argmax()
+            bestObjective = fvals[bestObjectiveIndex]
+            bestSolution = population[bestObjectiveIndex,:]
 
             # Your code here.
             selected = self.selection(population, self.k)
@@ -64,7 +66,7 @@ class r0123456:
     def selection(self, population, k):
         selected = np.zeros((self.mu, self.n))
         for ii in range( self.mu ):
-            ri = random.choices(range(np.size(population,0)), k = k)
+            ri = self.rng.choice(range(np.size(population,0)), size=(k,))
             min = np.argmin( self.objf(population[ri, :]) )
             selected[ii,:] = population[ri[min],:]
         return selected
