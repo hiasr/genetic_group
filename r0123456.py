@@ -94,7 +94,7 @@ class r0123456:
 
     """ Perform mutation, adding a random Gaussian perturbation. """
     def mutation(self, offspring, alpha):
-        ii = np.where(np.random.rand(np.size(offspring,0)) <= alpha)[0]
+        ii = np.where(self.rng.random(np.size(offspring,0)) <= alpha)[0]
         for i in ii:
             a = self.rng.integers(self.n)
             b = self.rng.integers(a, self.n)
