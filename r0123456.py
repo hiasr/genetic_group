@@ -13,7 +13,7 @@ class r0123456:
         self.k = 5                  # Tournament selection
         self.intMax = 500           # Boundary of the domain, not intended to be changed.
         self.numIters = 10          # Maximum number of iterations
-        self.rng = np.random.default_rng(72261889802660786358204887137777642604)
+        self.rng = np.random.default_rng(72211889822662786358204883137771642604)
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
@@ -71,35 +71,28 @@ class r0123456:
             selected[ii,:] = population[ri[min],:]
         return selected
 
-    """ Perform box crossover as in the slides. """
-    def old_crossover(self, selected):
-        weights = 3*np.random.rand(self.lambdaa,2) - 1
-        offspring = np.zeros((self.lambdaa, 2))
-        lc = lambda x, y, w: np.clip(x + w * (y-x), 0, self.intMax)
-        for ii, _ in enumerate(offspring):
-            offspring[ii,:] = lc(selected[2*ii, :], selected[2*ii+1, :], weights[ii, :])
-        return offspring
-
     def crossover(self, selected):
-        i = self.rng.integers(self.n)
-        j = self.rng.integers(i,self.n)
         offspring = np.zeros((self.mu, self.n), dtype=np.int64)
         
-        for k in range(self.mu):
-            offspring[k,i:j] = selected[k,i:j]
-            ii = 0
-            for jj in range(self.n):
-                if not selected[(k+1)%self.mu,(j+jj)%self.n] in offspring[k,:]:
-                    offspring[k,(j+ii)%self.n] = selected[(k+1)%self.mu,(j+jj)%self.n]
-                    ii += 1
+        for n in range(self.mu//2):
+            start, end = sorted(self.rng.integers(self.n,size=(2,)))
+            p1, p2 = 2*n, 2*n+1
+            for _ in range(2):
+                offspring[p1,start:end] = selected[p1,start:end]
+                i = 0
+                for j_ in range(self.n):
+                    j = (end+j_)%self.n
+                    if not selected[p2,j] in offspring[p1,:]:
+                        offspring[p1,(end+i)%self.n] = selected[p2,j]
+                        i += 1
+                p1,p2 = p2,p1
         return offspring
 
     """ Perform mutation, adding a random Gaussian perturbation. """
     def mutation(self, offspring, alpha):
         ii = np.where(self.rng.random(np.size(offspring,0)) <= alpha)[0]
         for i in ii:
-            a = self.rng.integers(self.n)
-            b = self.rng.integers(a, self.n)
+            a, b = sorted(self.rng.integers(self.n,size=(2,)))
             offspring[i, a:b+1] = np.flip(offspring[i, a:b+1])
         return offspring
 
@@ -114,7 +107,6 @@ class r0123456:
         m = np.size(permutation,0)
         fvals = np.zeros(m)
         for k in range(m):
-#            print(permutation[k,:])
             for j in range(1, self.n):
                  fvals[k] += self.distanceMatrix[permutation[k,j-1]][permutation[k,j]]
         return fvals
