@@ -1,3 +1,4 @@
+from numpy.random import f
 import Reporter
 import numpy as np
 
@@ -12,7 +13,8 @@ class r0123456:
         self.k = 7  # Tournament selection
         self.intMax = 500  # Boundary of the domain, not intended to be changed.
         self.numNoChangeIters = 100  # Maximum number of iterations
-        self.rng = np.random.default_rng(72211889822662786358204883137771642604)
+        self.rng = np.random.default_rng()
+        # self.rng = np.random.default_rng(72211889822662786358204883137771642604)
 
     # The evolutionary algorithm's main loop
     def optimize(self, filename):
@@ -29,8 +31,7 @@ class r0123456:
         while noChangeIters < self.numNoChangeIters:
             fvals = self.objf(population)
             meanObjective = fvals.mean()
-            print(meanObjective)
-            bestObjectiveIndex = fvals.argmax()
+            bestObjectiveIndex = fvals.argmin()
             bestObjective = fvals[bestObjectiveIndex]
             bestSolution = population[bestObjectiveIndex, :]
 
@@ -58,7 +59,7 @@ class r0123456:
                 break
 
         # Your code here.
-        return max(self.objf(population))
+        return min(self.objf(population))
 
     """Initialize population as random permutations"""
 
@@ -124,4 +125,7 @@ class r0123456:
 
 
 tsp = r0123456()
-print(tsp.optimize("datasets/tour50.csv"))
+best = tsp.optimize("datasets/tour50.csv")
+print(best)
+
+
